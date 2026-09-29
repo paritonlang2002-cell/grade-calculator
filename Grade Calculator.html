@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Calculator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #eef2ff;
+            color: #111827;
+        }
+
+        .container {
+            width: min(100%, 500px);
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 30px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 25px;
+        }
+
+        .subjects {
+            display: grid;
+            gap: 12px;
+        }
+
+        .subject {
+            display: grid;
+            grid-template-columns: 1fr 110px;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .subject label {
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .subject input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+        }
+
+        .subject input:focus {
+            border-color: #4f46e5;
+        }
+
+        .calculate {
+            width: 100%;
+            margin-top: 22px;
+            padding: 13px;
+            border: none;
+            border-radius: 9px;
+            background: #4f46e5;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .calculate:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f3f4f6;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .average {
+            font-size: 42px;
+            font-weight: bold;
+            color: #4f46e5;
+        }
+
+        .grade {
+            margin-top: 5px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .grade-description {
+            margin-top: 5px;
+            color: #6b7280;
+        }
+
+        .progress {
+            width: 100%;
+            height: 10px;
+            margin-top: 18px;
+            overflow: hidden;
+            border-radius: 20px;
+            background: #d1d5db;
+        }
+
+        .progress-bar {
+            width: 0;
+            height: 100%;
+            border-radius: 20px;
+            background: #4f46e5;
+            transition: width 0.5s ease;
+        }
+
+        .error {
+            min-height: 20px;
+            margin-top: 12px;
+            text-align: center;
+            color: #dc2626;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 22px;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+
+            .subject {
+                grid-template-columns: 1fr 90px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <h1>Grade Calculator</h1>
+        <p class="subtitle">Enter your scores to calculate your overall grade.</p>
+
+        <div class="subjects">
+            <div class="subject">
+                <label for="math">Mathematics</label>
+                <input type="number" id="math" min="0" max="100" placeholder="0–100">
+            </div>
+
+            <div class="subject">
+                <label for="science">Science</label>
+                <input type="number" id="science" min="0" max="100" placeholder="0–100">
+            </div>
+
+            <div class="subject">
+                <label for="english">English</label>
+                <input type="number" id="english" min="0" max="100" placeholder="0–100">
+            </div>
+
+            <div class="subject">
+                <label for="computer">Computer Science</label>
+                <input type="number" id="computer" min="0" max="100" placeholder="0–100">
+            </div>
+
+            <div class="subject">
+                <label for="social">Social Studies</label>
+                <input type="number" id="social" min="0" max="100" placeholder="0–100">
+            </div>
+        </div>
+
+        <button class="calculate" id="calculate">Calculate Grade</button>
+
+        <div class="error" id="error"></div>
+
+        <section class="result">
+            <div class="average" id="average">--%</div>
+            <div class="grade" id="grade">Grade --</div>
+            <div class="grade-description" id="description">
+                Enter all your scores.
+            </div>
+
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const calculateButton = document.getElementById("calculate");
+        const averageDisplay = document.getElementById("average");
+        const gradeDisplay = document.getElementById("grade");
+        const descriptionDisplay = document.getElementById("description");
+        const progressBar = document.getElementById("progressBar");
+        const errorDisplay = document.getElementById("error");
+
+        const subjects = [
+            "math",
+            "science",
+            "english",
+            "computer",
+            "social"
+        ];
+
+        function getGrade(average) {
+            if (average >= 90) {
+                return {
+                    grade: "A",
+                    description: "Excellent performance!"
+                };
+            }
+
+            if (average >= 80) {
+                return {
+                    grade: "B",
+                    description: "Very good performance!"
+                };
+            }
+
+            if (average >= 70) {
+                return {
+                    grade: "C",
+                    description: "Good performance."
+                };
+            }
+
+            if (average >= 60) {
+                return {
+                    grade: "D",
+                    description: "Satisfactory performance."
+                };
+            }
+
+            if (average >= 50) {
+                return {
+                    grade: "E",
+                    description: "You passed, but there is room for improvement."
+                };
+            }
+
+            return {
+                grade: "F",
+                description: "More preparation is needed."
+            };
+        }
+
+        function calculateGrade() {
+            const scores = [];
+
+            for (const subject of subjects) {
+                const input = document.getElementById(subject);
+                const score = Number(input.value);
+
+                if (input.value === "" || score < 0 || score > 100) {
+                    errorDisplay.textContent =
+                        "Please enter a valid score between 0 and 100 for every subject.";
+                    return;
+                }
+
+                scores.push(score);
+            }
+
+            const total = scores.reduce((sum, score) => sum + score, 0);
+            const average = total / scores.length;
+            const result = getGrade(average);
+
+            averageDisplay.textContent = `${average.toFixed(1)}%`;
+            gradeDisplay.textContent = `Grade ${result.grade}`;
+            descriptionDisplay.textContent = result.description;
+            progressBar.style.width = `${average}%`;
+            errorDisplay.textContent = "";
+        }
+
+        calculateButton.addEventListener("click", calculateGrade);
+    </script>
+</body>
+</html>
+
